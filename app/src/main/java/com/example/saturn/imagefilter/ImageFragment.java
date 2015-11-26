@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 
 import java.io.File;
@@ -26,9 +27,12 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.sileria.android.view.HorzListView;
 
 
 public class ImageFragment extends Fragment implements SurfaceHolder.Callback, Camera.ShutterCallback, Camera.PictureCallback{
@@ -46,14 +50,28 @@ public class ImageFragment extends Fragment implements SurfaceHolder.Callback, C
 
         mCamera = Camera.open();
 
-        final Button btTake = (Button) v.findViewById(R.id.image_take);
+        // listview Item la anh
+        HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
+        int[] arrImg = { R.drawable.effect_black, R.drawable.effect_boost_1, R.drawable.effect_boost_2,
+                R.drawable.effect_boost_3, R.drawable.effect_brightness, R.drawable.effect_brightness,
+                R.drawable.effect_color_red,
+                R.drawable.effect_color_green,
+                R.drawable.effect_color_blue,
+                R.drawable.effect_color_depth_64,
+                R.drawable.effect_color_depth_32};
+        ListFilterAdapter adapterImg = new ListFilterAdapter(
+                getActivity(), arrImg);
+        listviewImg.setAdapter(adapterImg);
+        listviewImg.setOnItemClickListener(onFilterClickListener);
+
+        FloatingActionButton btTake = (FloatingActionButton)v.findViewById(R.id.fab_take);
         btTake.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mCamera.takePicture(ImageFragment.this, null, null, ImageFragment.this);
             }
         });
-        final Button btSave = (Button) v.findViewById(R.id.fab_save);
-        //btSave.setOnClickListener(onSaveClick);
+        FloatingActionButton btSave = (FloatingActionButton)v.findViewById(R.id.fab_save);
+        btSave.setOnClickListener(onSaveClick);
         return v;
     }
     @Override
@@ -149,5 +167,14 @@ public class ImageFragment extends Fragment implements SurfaceHolder.Callback, C
                     .show();
         }
     };
+    boolean isFilterChange = false;
+    int filterIndex = 0;
 
+    AdapterView.OnItemClickListener onFilterClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            filterIndex = i;
+            isFilterChange = true;
+        }
+    };
 }
