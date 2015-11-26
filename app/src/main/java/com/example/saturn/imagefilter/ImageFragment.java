@@ -46,13 +46,14 @@ public class ImageFragment extends Fragment implements SurfaceHolder.Callback, C
 
         mCamera = Camera.open();
 
-        final Button button = (Button) v.findViewById(R.id.image_take);
-        button.setOnClickListener(new View.OnClickListener() {
+        final Button btTake = (Button) v.findViewById(R.id.image_take);
+        btTake.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 mCamera.takePicture(ImageFragment.this, null, null, ImageFragment.this);
             }
         });
-
+        final Button btSave = (Button) v.findViewById(R.id.fab_save);
+        //btSave.setOnClickListener(onSaveClick);
         return v;
     }
     @Override
@@ -81,39 +82,13 @@ public class ImageFragment extends Fragment implements SurfaceHolder.Callback, C
         Toast.makeText(getActivity(), "Click!", Toast.LENGTH_SHORT).show();
     }
 
+    byte[] cur_img_data;
     @Override
     public void onPictureTaken(final byte[] data, Camera camera) {
-        //Here, we chose internal storage
-        //final byte[] fdata = data;
-        final EditText txtUrl = new EditText(getActivity());
-        new AlertDialog.Builder(getActivity())
-                .setTitle("Message")
-                .setMessage("Input file name!")
-                .setView(txtUrl)
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        String str = txtUrl.getText().toString();
-                        try {
-                            Toast.makeText(getActivity(),"Processing...", Toast.LENGTH_SHORT).show();
-                            Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
-                            String fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + str +".png";
-                            File f = new File(fileName);
-                            FileOutputStream fos = new FileOutputStream(f);
-                            bmp.compress(Bitmap.CompressFormat.PNG, 90, fos);
-                            Toast.makeText(getActivity(),"Save file at "+ fileName, Toast.LENGTH_LONG).show();
-                        }
-                        catch(Exception ex){
-                            Toast.makeText(getActivity(),"Save file fail", Toast.LENGTH_SHORT).show();
-                            ex.printStackTrace();
-                        }
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                    }
-                })
-                .show();
-        camera.startPreview();
+        cur_img_data = data;
+        //code here
+
+        //camera.startPreview();
     }
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -140,4 +115,39 @@ public class ImageFragment extends Fragment implements SurfaceHolder.Callback, C
     public void surfaceDestroyed(SurfaceHolder holder) {
         Log.i("PREVIEW","surfaceDestroyed");
     }
+
+    View.OnClickListener onSaveClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            final EditText txtUrl = new EditText(getActivity());
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Message")
+                    .setMessage("Input file name!")
+                    .setView(txtUrl)
+                    .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            String str = txtUrl.getText().toString();
+                            try {
+                                Toast.makeText(getActivity(),"Processing...", Toast.LENGTH_SHORT).show();
+                                Bitmap bmp = BitmapFactory.decodeByteArray(cur_img_data, 0, cur_img_data.length);
+                                String fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + str +".png";
+                                File f = new File(fileName);
+                                FileOutputStream fos = new FileOutputStream(f);
+                                bmp.compress(Bitmap.CompressFormat.PNG, 90, fos);
+                                Toast.makeText(getActivity(),"Save file at "+ fileName, Toast.LENGTH_LONG).show();
+                            }
+                            catch(Exception ex){
+                                Toast.makeText(getActivity(),"Save file fail", Toast.LENGTH_SHORT).show();
+                                ex.printStackTrace();
+                            }
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                        }
+                    })
+                    .show();
+        }
+    };
+
 }
