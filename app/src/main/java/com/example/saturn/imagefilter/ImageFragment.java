@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -30,25 +32,28 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.sileria.android.view.HorzListView;
 
 
-public class ImageFragment extends Fragment implements SurfaceHolder.Callback, Camera.ShutterCallback, Camera.PictureCallback{
-    Camera mCamera;
-    SurfaceView mPreview;
-
+public class ImageFragment extends Fragment {
+    GLSurfaceView mPreview;
+    private static final int SELECT_PHOTO = 101;
+    private static final int REQUEST_IMAGE_CAPTURE = 102;
     Button start, stop, capture;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_image,container,false);
-        mPreview = (SurfaceView)v.findViewById(R.id.preview);
-        mPreview.getHolder().addCallback(this);
-        mPreview.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-        mCamera = Camera.open();
+
+        LinearLayout LPreview = (LinearLayout)v.findViewById(R.id.preview);
+        mPreview = new GLSurfaceView(getActivity());
+        mPreview.setEGLContextClientVersion(2);
+        mPreview.setRenderer(new GLLayer(getActivity()));
+        LPreview.addView(mPreview);
 
         // listview Item la anh
         HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
@@ -67,74 +72,27 @@ public class ImageFragment extends Fragment implements SurfaceHolder.Callback, C
         FloatingActionButton btTake = (FloatingActionButton)v.findViewById(R.id.fab_take);
         btTake.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mCamera.takePicture(ImageFragment.this, null, null, ImageFragment.this);
+                //mCamera.takePicture(ImageFragment.this, null, null, ImageFragment.this);
             }
         });
         FloatingActionButton btSave = (FloatingActionButton)v.findViewById(R.id.fab_save);
-        btSave.setOnClickListener(onSaveClick);
+        //btSave.setOnClickListener(onSaveClick);
+        FloatingActionButton btAdd = (FloatingActionButton)v.findViewById(R.id.fab_add);
+        btAdd.setOnClickListener(onAddClick);
         return v;
     }
     @Override
     public void onPause() {
         super.onPause();
-        mCamera.stopPreview();
+        mPreview.onPause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mCamera.release();
-        Log.d("CAMERA","Destroy");
     }
 
-    public void onCancelClick(View v) {
-        getActivity().finish();
-    }
-
-    public void onSnapClick(View v) {
-        mCamera.takePicture(this, null, null, this);
-    }
-
-    @Override
-    public void onShutter() {
-        Toast.makeText(getActivity(), "Click!", Toast.LENGTH_SHORT).show();
-    }
-
-    byte[] cur_img_data;
-    @Override
-    public void onPictureTaken(final byte[] data, Camera camera) {
-        cur_img_data = data;
-        //code here
-
-        //camera.startPreview();
-    }
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Camera.Parameters params = mCamera.getParameters();
-        List<Camera.Size> sizes = params.getSupportedPreviewSizes();
-        Camera.Size selected = sizes.get(0);
-        params.setPreviewSize(selected.width,selected.height);
-        mCamera.setParameters(params);
-
-        mCamera.setDisplayOrientation(90);
-        mCamera.startPreview();
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        try {
-            mCamera.setPreviewDisplay(mPreview.getHolder());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.i("PREVIEW","surfaceDestroyed");
-    }
-
-    View.OnClickListener onSaveClick = new View.OnClickListener() {
+    /*View.OnClickListener onSaveClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             final EditText txtUrl = new EditText(getActivity());
@@ -166,7 +124,7 @@ public class ImageFragment extends Fragment implements SurfaceHolder.Callback, C
                     })
                     .show();
         }
-    };
+    };*/
     boolean isFilterChange = false;
     int filterIndex = 0;
 
@@ -174,7 +132,30 @@ public class ImageFragment extends Fragment implements SurfaceHolder.Callback, C
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             filterIndex = i;
-            isFilterChange = true;
+            if (filterIndex == 0){
+                GLLayer.shader_selection = 0;
+            }
+            if (filterIndex == 1){
+                GLLayer.shader_selection = GLLayer.BLUR;
+            }
+            if	(filterIndex == 2){
+                GLLayer.shader_selection = GLLayer.EDGE;
+            }
+            if	(filterIndex == 3){
+                GLLayer.shader_selection = GLLayer.EMBOSS;
+            }
         }
     };
+    View.OnClickListener onAddClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(photoPickerIntent, SELECT_PHOTO);
+        }
+    };
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }
