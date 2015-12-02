@@ -43,6 +43,7 @@ public class ImageFragment extends Fragment {
     GLLayer viewRenderer;
     private static final int SELECT_PHOTO = 101;
     private static final int REQUEST_IMAGE_CAPTURE = 102;
+    LinearLayout LPreview;
     Button start, stop, capture;
     @Nullable
     @Override
@@ -50,10 +51,10 @@ public class ImageFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_image,container,false);
 
 
-        LinearLayout LPreview = (LinearLayout)v.findViewById(R.id.preview);
+        LPreview = (LinearLayout)v.findViewById(R.id.preview);
         mPreview = new GLSurfaceView(getActivity());
         mPreview.setEGLContextClientVersion(2);
-        viewRenderer = new GLLayer(getActivity());
+        viewRenderer = new GLLayer(getActivity(), null);
         mPreview.setRenderer(viewRenderer);
         LPreview.addView(mPreview);
 
@@ -83,10 +84,17 @@ public class ImageFragment extends Fragment {
         btAdd.setOnClickListener(onAddClick);
         return v;
     }
+
     @Override
     public void onPause() {
         super.onPause();
         mPreview.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mPreview.onResume();
     }
 
     @Override
@@ -152,21 +160,26 @@ public class ImageFragment extends Fragment {
         @Override
         public void onClick(View view) {
             Intent photoPickerIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            photoPickerIntent.setType("image/*");
             startActivityForResult(photoPickerIntent, SELECT_PHOTO);
         }
     };
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
             case SELECT_PHOTO:
                 if(resultCode == -1){
                     Uri selectedImage = data.getData();
                     Bitmap bmp = decodeUri(selectedImage);
                     if(bmp !=null){
-                        viewRenderer.mTextureDataHandle0 = TextureHelper.loadTextureBitmap(bmp);
-                        viewRenderer.mTextureDataHandle1 = TextureHelper.loadTextureBitmap(bmp);
+                        LPreview.removeAllViews();
+                        mPreview = new GLSurfaceView(getActivity());
+                        mPreview.setEGLContextClientVersion(2);
+                        viewRenderer = new GLLayer(getActivity(), bmp);
                         mPreview.setRenderer(viewRenderer);
+                        LPreview.addView(mPreview);
                     }
                 }
             case REQUEST_IMAGE_CAPTURE:
@@ -179,7 +192,7 @@ public class ImageFragment extends Fragment {
                     }
                 }
         }
-        super.onActivityResult(requestCode, resultCode, data);
+
     }
     private Bitmap decodeUri(Uri selectedImage)  {
 

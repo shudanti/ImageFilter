@@ -8,6 +8,9 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -83,8 +86,8 @@ public class GLLayer implements GLSurfaceView.Renderer {
 	private int mProgramHandle;
 
 	/** This is a handle to our texture data. */
-	public int mTextureDataHandle0;
-	public int mTextureDataHandle1;
+	static public int mTextureDataHandle0;
+	static public int mTextureDataHandle1;
 	
 	/**
 	 * Shader Titles
@@ -103,12 +106,13 @@ public class GLLayer implements GLSurfaceView.Renderer {
 	static public final int WARP = 11;
 	//and more ...
 
+	private Bitmap bitmap;
 	/**
 	 * Initialize the model data.
 	 */
-	public GLLayer(final Context activityContext) {
+	public GLLayer(final Context activityContext, Bitmap bmp) {
 		mActivityContext = activityContext;
-
+		bitmap = bmp;
 		// Define points for a cube.
 
 		// X, Y, Z
@@ -235,16 +239,20 @@ public class GLLayer implements GLSurfaceView.Renderer {
 		Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY,
 				lookZ, upX, upY, upZ);
 
-		
-		// Load the texture
-		mTextureDataHandle0 = TextureHelper.loadTexture(mActivityContext,
-				R.drawable.effect_black);
 
-		// Load the texture
-		mTextureDataHandle1 = TextureHelper.loadTexture(mActivityContext,
-				R.drawable.effect_black);
+		if (bitmap == null) {
+			// Load the texture
+			mTextureDataHandle0 = TextureHelper.loadTexture(mActivityContext,
+					R.drawable.image);
+
+			// Load the texture
+			mTextureDataHandle1 = TextureHelper.loadTexture(mActivityContext,
+					R.drawable.image);
+		} else {
+			GLLayer.changeTexture(0, bitmap);
+			GLLayer.changeTexture(1, bitmap);
+		}
 	}
-
 	@Override
 	public void onSurfaceChanged(GL10 glUnused, int width, int height) {
 		// Set the OpenGL viewport to the same size as the surface.
@@ -361,5 +369,14 @@ public class GLLayer implements GLSurfaceView.Renderer {
 
 		// Draw the cube.
 		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+	}
+
+	public static void changeTexture(int i, Bitmap bmp)
+	{
+		if(i == 0) {
+			mTextureDataHandle0 = TextureHelper.loadTextureBitmap(bmp);
+		} else if(i == 1) {
+			mTextureDataHandle1 = TextureHelper.loadTextureBitmap(bmp);
+		}
 	}
 }
