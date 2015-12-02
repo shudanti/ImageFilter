@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -54,13 +55,11 @@ public class ImageFragment extends Fragment {
         listviewImg.setOnItemClickListener(onFilterClickListener);
 
         FloatingActionButton btTake = (FloatingActionButton)v.findViewById(R.id.fab_take);
-        btTake.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                //mCamera.takePicture(ImageFragment.this, null, null, ImageFragment.this);
-            }
-        });
+        btTake.setOnClickListener(onTakeClick);
+
         FloatingActionButton btSave = (FloatingActionButton)v.findViewById(R.id.fab_save);
         //btSave.setOnClickListener(onSaveClick);
+
         FloatingActionButton btAdd = (FloatingActionButton)v.findViewById(R.id.fab_add);
         btAdd.setOnClickListener(onAddClick);
         return v;
@@ -141,11 +140,18 @@ public class ImageFragment extends Fragment {
         @Override
         public void onClick(View view) {
             Intent photoPickerIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            photoPickerIntent.setType("image/*");
             startActivityForResult(photoPickerIntent, SELECT_PHOTO);
         }
     };
-
+    View.OnClickListener onTakeClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    };
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -168,8 +174,12 @@ public class ImageFragment extends Fragment {
                     Uri selectedImage = data.getData();
                     Bitmap bmp = decodeUri(selectedImage);
                     if(bmp !=null){
-                        //src = bmp;
-                        //imgMain.setImageBitmap(src);
+                        LPreview.removeAllViews();
+                        mPreview = new GLSurfaceView(getActivity());
+                        mPreview.setEGLContextClientVersion(2);
+                        viewRenderer = new GLLayer(getActivity(), bmp);
+                        mPreview.setRenderer(viewRenderer);
+                        LPreview.addView(mPreview);
                     }
                 }
         }
@@ -202,7 +212,7 @@ public class ImageFragment extends Fragment {
 
             // Decode with inSampleSize
             BitmapFactory.Options o2 = new BitmapFactory.Options();
-            o2.inSampleSize = scale;
+            //o2.inSampleSize = scale;
             return BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(selectedImage), null, o2);
         }
         catch (Exception e){
