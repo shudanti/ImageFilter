@@ -40,6 +40,7 @@ import com.sileria.android.view.HorzListView;
 
 public class ImageFragment extends Fragment {
     GLSurfaceView mPreview;
+    GLLayer viewRenderer;
     private static final int SELECT_PHOTO = 101;
     private static final int REQUEST_IMAGE_CAPTURE = 102;
     Button start, stop, capture;
@@ -52,7 +53,8 @@ public class ImageFragment extends Fragment {
         LinearLayout LPreview = (LinearLayout)v.findViewById(R.id.preview);
         mPreview = new GLSurfaceView(getActivity());
         mPreview.setEGLContextClientVersion(2);
-        mPreview.setRenderer(new GLLayer(getActivity()));
+        viewRenderer = new GLLayer(getActivity());
+        mPreview.setRenderer(viewRenderer);
         LPreview.addView(mPreview);
 
         // listview Item la anh
@@ -156,6 +158,62 @@ public class ImageFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case SELECT_PHOTO:
+                if(resultCode == -1){
+                    Uri selectedImage = data.getData();
+                    Bitmap bmp = decodeUri(selectedImage);
+                    if(bmp !=null){
+                        viewRenderer.mTextureDataHandle0 = TextureHelper.loadTextureBitmap(bmp);
+                        viewRenderer.mTextureDataHandle1 = TextureHelper.loadTextureBitmap(bmp);
+                        mPreview.setRenderer(viewRenderer);
+                    }
+                }
+            case REQUEST_IMAGE_CAPTURE:
+                if(resultCode == -1){
+                    Uri selectedImage = data.getData();
+                    Bitmap bmp = decodeUri(selectedImage);
+                    if(bmp !=null){
+                        //src = bmp;
+                        //imgMain.setImageBitmap(src);
+                    }
+                }
+        }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+    private Bitmap decodeUri(Uri selectedImage)  {
+
+        try {
+
+            // Decode image size
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(selectedImage), null, o);
+
+            // The new size we want to scale to
+            final int REQUIRED_SIZE = 400;
+
+            // Find the correct scale value. It should be the power of 2.
+            int width_tmp = o.outWidth, height_tmp = o.outHeight;
+            int scale = 1;
+            while (true) {
+                if (width_tmp / 2 < REQUIRED_SIZE
+                        || height_tmp / 2 < REQUIRED_SIZE) {
+                    break;
+                }
+                width_tmp /= 2;
+                height_tmp /= 2;
+                scale *= 2;
+            }
+
+            // Decode with inSampleSize
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = scale;
+            return BitmapFactory.decodeStream(getActivity().getContentResolver().openInputStream(selectedImage), null, o2);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }
