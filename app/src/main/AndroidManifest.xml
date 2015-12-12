@@ -18,14 +18,14 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MenuActivity"></activity>
         <activity android:name=".VideoActivity" />
-        <activity android:name=".ImageActivity" />
+        <activity android:name=".CameraCaptureActivity" />
         <activity
             android:name=".ProcessActivity"
             android:label="@string/title_activity_process"
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
-        <activity android:name=".CameraCaptureActivity">
+        <activity android:name=".ImageActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
