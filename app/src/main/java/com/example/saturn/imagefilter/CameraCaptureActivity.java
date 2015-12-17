@@ -12,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *//*
+
 
 package com.example.saturn.imagefilter;
 
@@ -44,6 +45,7 @@ import java.lang.ref.WeakReference;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+*/
 /**
  * Shows the camera preview on screen while simultaneously recording it to a .mp4 file.
  * <p>
@@ -117,7 +119,8 @@ import javax.microedition.khronos.opengles.GL10;
  * "paused" message and hold on that in the recording, or leave the Camera running so it
  * continues to generate preview frames while the Activity is paused.)  The video encoder object
  * is managed as a static property of the Activity.
- */
+ *//*
+
 public class CameraCaptureActivity extends Activity
         implements SurfaceTexture.OnFrameAvailableListener, OnItemSelectedListener {
     private static final String TAG = "360";
@@ -236,11 +239,13 @@ public class CameraCaptureActivity extends Activity
 
     @Override public void onNothingSelected(AdapterView<?> parent) {}
 
-    /**
+    */
+/**
      * Opens a camera, and attempts to establish preview mode at the specified width and height.
      * <p>
      * Sets mCameraPreviewWidth and mCameraPreviewHeight to the actual width/height of the preview.
-     */
+     *//*
+
     private void openCamera(int desiredWidth, int desiredHeight) {
         if (mCamera != null) {
             throw new RuntimeException("camera already initialized");
@@ -293,9 +298,11 @@ public class CameraCaptureActivity extends Activity
         mCameraPreviewHeight = mCameraPreviewSize.height;
     }
 
-    /**
+    */
+/**
      * Stops camera preview, and releases the camera to the system.
-     */
+     *//*
+
     private void releaseCamera() {
         if (mCamera != null) {
             mCamera.stopPreview();
@@ -305,9 +312,11 @@ public class CameraCaptureActivity extends Activity
         }
     }
 
-    /**
+    */
+/**
      * onClick handler for "record" button.
-     */
+     *//*
+
     public void clickToggleRecording(@SuppressWarnings("unused") View unused) {
         mRecordingEnabled = !mRecordingEnabled;
         mGLView.queueEvent(new Runnable() {
@@ -319,17 +328,21 @@ public class CameraCaptureActivity extends Activity
         updateControls();
     }
 
-//    /**
+//    */
+/**
 //     * onClick handler for "rebind" checkbox.
-//     */
+//     *//*
+
 //    public void clickRebindCheckbox(View unused) {
 //        CheckBox cb = (CheckBox) findViewById(R.id.rebindHack_checkbox);
 //        TextureRender.sWorkAroundContextProblem = cb.isChecked();
 //    }
 
-    /**
+    */
+/**
      * Updates the on-screen controls to reflect the current state of the app.
-     */
+     *//*
+
     private void updateControls() {
         Button toggleRelease = (Button) findViewById(R.id.toggleRecording_button);
         int id = mRecordingEnabled ?
@@ -340,9 +353,11 @@ public class CameraCaptureActivity extends Activity
         //cb.setChecked(TextureRender.sWorkAroundContextProblem);
     }
 
-    /**
+    */
+/**
      * Connects the SurfaceTexture to the Camera preview output, and starts the preview.
-     */
+     *//*
+
     private void handleSetSurfaceTexture(SurfaceTexture st) {
         st.setOnFrameAvailableListener(this);
         try {
@@ -371,13 +386,15 @@ public class CameraCaptureActivity extends Activity
         mGLView.requestRender();
     }
 
-    /**
+    */
+/**
      * Handles camera operation requests from other threads.  Necessary because the Camera
      * must only be accessed from one thread.
      * <p>
      * The object is created on the UI thread, and all handlers run there.  Messages are
      * sent from other threads, using sendMessage().
-     */
+     *//*
+
     static class CameraHandler extends Handler {
         public static final int MSG_SET_SURFACE_TEXTURE = 0;
 
@@ -388,10 +405,12 @@ public class CameraCaptureActivity extends Activity
             mWeakActivity = new WeakReference<CameraCaptureActivity>(activity);
         }
 
-        /**
+        */
+/**
          * Drop the reference to the activity.  Useful as a paranoid measure to ensure that
          * attempts to access a stale Activity through a handler are caught.
-         */
+         *//*
+
         public void invalidateHandler() {
             mWeakActivity.clear();
         }
@@ -418,12 +437,14 @@ public class CameraCaptureActivity extends Activity
     }
 }
 
+*/
 /**
  * Renderer object for our GLSurfaceView.
  * <p>
  * Do not call any methods here directly from another thread -- use the
  * GLSurfaceView#queueEvent() call.
- */
+ *//*
+
 class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
     private static final String TAG = "360";
     private static final boolean VERBOSE = false;
@@ -455,13 +476,15 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
     private int mNewFilter;
 
 
-    /**
+    */
+/**
      * Constructs CameraSurfaceRenderer.
      * <p>
      * @param cameraHandler Handler for communicating with UI thread
      * @param movieEncoder video encoder object
      * @param outputFile output file for encoded video; forwarded to movieEncoder
-     */
+     *//*
+
     public CameraSurfaceRenderer(CameraCaptureActivity.CameraHandler cameraHandler,
                                  TextureMovieEncoder movieEncoder, File outputFile) {
         mCameraHandler = cameraHandler;
@@ -482,11 +505,13 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
         mNewFilter = CameraCaptureActivity.FILTER_NONE;
     }
 
-    /**
+    */
+/**
      * Notifies the renderer thread that the activity is pausing.
      * <p>
      * For best results, call this *after* disabling Camera preview.
-     */
+     *//*
+
     public void notifyPausing() {
         if (mSurfaceTexture != null) {
             Log.d(TAG, "renderer pausing -- releasing SurfaceTexture");
@@ -500,24 +525,30 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
         mIncomingWidth = mIncomingHeight = -1;
     }
 
-    /**
+    */
+/**
      * Notifies the renderer that we want to stop or start recording.
-     */
+     *//*
+
     public void changeRecordingState(boolean isRecording) {
         Log.d(TAG, "changeRecordingState: was " + mRecordingEnabled + " now " + isRecording);
         mRecordingEnabled = isRecording;
     }
 
-    /**
+    */
+/**
      * Changes the filter that we're applying to the camera preview.
-     */
+     *//*
+
     public void changeFilterMode(int filter) {
         mNewFilter = filter;
     }
 
-    /**
+    */
+/**
      * Updates the filter program.
-     */
+     *//*
+
     public void updateFilter() {
         Texture2dProgram.ProgramType programType;
         float[] kernel = null;
@@ -583,13 +614,15 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
         mCurrentFilter = mNewFilter;
     }
 
-    /**
+    */
+/**
      * Records the size of the incoming camera preview frames.
      * <p>
      * It's not clear whether this is guaranteed to execute before or after onSurfaceCreated(),
      * so we assume it could go either way.  (Fortunately they both run on the same thread,
      * so we at least know that they won't execute concurrently.)
-     */
+     *//*
+
     public void setCameraPreviewSize(int width, int height) {
         Log.d(TAG, "setCameraPreviewSize");
         mIncomingWidth = width;
@@ -720,9 +753,11 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    /**
+    */
+/**
      * Draws a red box in the corner.
-     */
+     *//*
+
     private void drawBox() {
         GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
         GLES20.glScissor(0, 0, 100, 100);
@@ -731,3 +766,4 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
         GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
     }
 }
+*/

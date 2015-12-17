@@ -99,17 +99,11 @@ public class Texture2dProgram {
             "void main() {\n" +
             "    int i = 0;\n" +
             "    vec4 sum = vec4(0.0);\n" +
-            "    if (vTextureCoord.x < vTextureCoord.y - 0.005) {\n" +
-            "        for (i = 0; i < KERNEL_SIZE; i++) {\n" +
-            "            vec4 texc = texture2D(sTexture, vTextureCoord + uTexOffset[i]);\n" +
-            "            sum += texc * uKernel[i];\n" +
-            "        }\n" +
-            "    sum += uColorAdjust;\n" +
-            "    } else if (vTextureCoord.x > vTextureCoord.y + 0.005) {\n" +
-            "        sum = texture2D(sTexture, vTextureCoord);\n" +
-            "    } else {\n" +
-            "        sum.r = 1.0;\n" +
+            "    for (i = 0; i < KERNEL_SIZE; i++) {\n" +
+            "        vec4 texc = texture2D(sTexture, vTextureCoord + uTexOffset[i]);\n" +
+            "        sum += texc * uKernel[i];\n" +
             "    }\n" +
+            "    sum += uColorAdjust;\n" +
             "    gl_FragColor = sum;\n" +
             "}\n";
 
