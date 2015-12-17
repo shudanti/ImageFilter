@@ -71,7 +71,7 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
         v = inflater.inflate(R.layout.fragment_video,container,false);
 
         // listview Item la anh
-        HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
+       /* HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
         int[] arrImg = { R.drawable.effect_black, R.drawable.effect_boost_1, R.drawable.effect_boost_2,
                 R.drawable.effect_boost_3, R.drawable.effect_brightness, R.drawable.effect_brightness,
                 R.drawable.effect_color_red,
@@ -81,7 +81,7 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
                 R.drawable.effect_color_depth_32};
         ListFilterAdapter adapterImg = new ListFilterAdapter(
                 getActivity(), arrImg);
-        listviewImg.setAdapter(adapterImg);
+        //listviewImg.setAdapter(adapterImg);
         //listviewImg.setOnItemClickListener(onFilterClickListener);
 
         FloatingActionButton btTake = (FloatingActionButton)v.findViewById(R.id.fab_take);
@@ -91,19 +91,19 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
         //btSave.setOnClickListener(onSaveClick);
 
         FloatingActionButton btAdd = (FloatingActionButton)v.findViewById(R.id.fab_add);
-        //btAdd.setOnClickListener(onAddClick);
+        //btAdd.setOnClickListener(onAddClick);*/
 
         File outputFile = new File(getActivity().getFilesDir(), "camera-test.mp4");
         TextView fileText = (TextView) v.findViewById(R.id.cameraOutputFile_text);
         fileText.setText(outputFile.toString());
-
+/*
         Spinner spinner = (Spinner) v.findViewById(R.id.cameraFilter_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.cameraFilterNames, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner.
         spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
+        spinner.setOnItemSelectedListener(this);*/
 
         // Define a handler that receives camera-control messages from other threads.  All calls
         // to Camera must be made on the same thread.  Note we create this before the renderer
