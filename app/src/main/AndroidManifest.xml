@@ -18,7 +18,6 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MenuActivity"></activity>
         <activity android:name=".VideoActivity" />
-        <activity android:name=".CameraCaptureActivity" />
         <activity
             android:name=".ProcessActivity"
             android:label="@string/title_activity_process"

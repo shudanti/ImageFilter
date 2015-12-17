@@ -126,11 +126,11 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
     public void onResume() {
         super.onResume();
         updateControls();
-        openCamera(1280, 720);      // updates mCameraPreviewWidth/Height
+        openCamera(1280, 720 );      // updates mCameraPreviewWidth/Height
 
         // Set the preview aspect ratio.
         AspectFrameLayout layout = (AspectFrameLayout) v.findViewById(R.id.cameraPreview_afl);
-        layout.setAspectRatio((double) mCameraPreviewWidth / mCameraPreviewHeight);
+        layout.setAspectRatio((double) mCameraPreviewHeight/ mCameraPreviewWidth);
 
         mGLView.onResume();
         mGLView.queueEvent(new Runnable() {
@@ -186,14 +186,18 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
         int numCameras = Camera.getNumberOfCameras();
         for (int i = 0; i < numCameras; i++) {
             Camera.getCameraInfo(i, info);
-            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
                 mCamera = Camera.open(i);
+                mCamera.setDisplayOrientation((info.orientation ) % 360);
+
                 break;
             }
         }
+
         if (mCamera == null) {
             mCamera = Camera.open();    // opens first back-facing camera
         }
+
         if (mCamera == null) {
             throw new RuntimeException("Unable to open camera");
         }
