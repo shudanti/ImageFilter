@@ -105,7 +105,7 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
         //FloatingActionButton btAdd = (FloatingActionButton)v.findViewById(R.id.fab_add);
         //btAdd.setOnClickListener(onAddClick);
 
-        File outputFile = new File(Environment.getExternalStorageDirectory(), "camera-test.mp4");
+        File outputFile = new File(Environment.getExternalStorageDirectory(), System.currentTimeMillis()/1000 + ".mp4");
 /*
         Spinner spinner = (Spinner) v.findViewById(R.id.cameraFilter_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
