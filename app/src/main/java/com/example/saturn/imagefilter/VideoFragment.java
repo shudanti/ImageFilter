@@ -7,6 +7,7 @@ import android.opengl.EGL14;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -60,6 +61,21 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
     private static TextureMovieEncoder sVideoEncoder = new TextureMovieEncoder();
 
     View v;
+
+    AdapterView.OnItemClickListener onFilterClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            final int position = i;
+            mGLView.queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    // notify the renderer that we want to change the encoder's state
+                    mRenderer.changeFilterMode(position);
+                }
+            });
+        }
+    };
+
     public VideoFragment() {
         // Required empty public constructor
     }
@@ -71,31 +87,25 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
         v = inflater.inflate(R.layout.fragment_video,container,false);
 
         // listview Item la anh
-       /* HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
+        HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
         int[] arrImg = { R.drawable.effect_black, R.drawable.effect_boost_1, R.drawable.effect_boost_2,
-                R.drawable.effect_boost_3, R.drawable.effect_brightness, R.drawable.effect_brightness,
-                R.drawable.effect_color_red,
-                R.drawable.effect_color_green,
-                R.drawable.effect_color_blue,
-                R.drawable.effect_color_depth_64,
-                R.drawable.effect_color_depth_32};
+                R.drawable.effect_boost_3, R.drawable.effect_brightness, R.drawable.effect_brightness};
         ListFilterAdapter adapterImg = new ListFilterAdapter(
                 getActivity(), arrImg);
-        //listviewImg.setAdapter(adapterImg);
-        //listviewImg.setOnItemClickListener(onFilterClickListener);
+
+        listviewImg.setAdapter(adapterImg);
+        listviewImg.setOnItemClickListener(onFilterClickListener);
 
         FloatingActionButton btTake = (FloatingActionButton)v.findViewById(R.id.fab_take);
-        //btTake.setOnClickListener(onTakeClick);
+        btTake.setOnClickListener(clickRecording);
 
-        FloatingActionButton btSave = (FloatingActionButton)v.findViewById(R.id.fab_save);
+        //FloatingActionButton btSave = (FloatingActionButton)v.findViewById(R.id.fab_save);
         //btSave.setOnClickListener(onSaveClick);
 
-        FloatingActionButton btAdd = (FloatingActionButton)v.findViewById(R.id.fab_add);
-        //btAdd.setOnClickListener(onAddClick);*/
+        //FloatingActionButton btAdd = (FloatingActionButton)v.findViewById(R.id.fab_add);
+        //btAdd.setOnClickListener(onAddClick);
 
-        File outputFile = new File(getActivity().getFilesDir(), "camera-test.mp4");
-        TextView fileText = (TextView) v.findViewById(R.id.cameraOutputFile_text);
-        fileText.setText(outputFile.toString());
+        File outputFile = new File(Environment.getExternalStorageDirectory(), "camera-test.mp4");
 /*
         Spinner spinner = (Spinner) v.findViewById(R.id.cameraFilter_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
@@ -130,7 +140,7 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
 
         // Set the preview aspect ratio.
         AspectFrameLayout layout = (AspectFrameLayout) v.findViewById(R.id.cameraPreview_afl);
-        layout.setAspectRatio((double) mCameraPreviewHeight/ mCameraPreviewWidth);
+        layout.setAspectRatio((double) mCameraPreviewHeight / mCameraPreviewWidth);
 
         mGLView.onResume();
         mGLView.queueEvent(new Runnable() {
@@ -151,8 +161,8 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
                 mRenderer.notifyPausing();
             }
         });
-        mGLView.onPause();
-    }
+         mGLView.onPause();
+     }
 
     public void onDestroy() {
         super.onDestroy();
@@ -223,8 +233,6 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
             previewFacts += " @[" + (fpsRange[0] / 1000.0) +
                     " - " + (fpsRange[1] / 1000.0) + "] fps";
         }
-        TextView text = (TextView) v.findViewById(R.id.cameraParams_text);
-        text.setText(previewFacts);
 
         mCameraPreviewWidth = mCameraPreviewSize.width;
         mCameraPreviewHeight = mCameraPreviewSize.height;
@@ -240,11 +248,25 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
             mCamera = null;
         }
     }
+    View.OnClickListener clickRecording = new View.OnClickListener() {
+        @Override
+        public void onClick(@SuppressWarnings("unused") View view) {
+            mRecordingEnabled = !mRecordingEnabled;
+            mGLView.queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    // notify the renderer that we want to change the encoder's state
+                    mRenderer.changeRecordingState(mRecordingEnabled);
+                }
+            });
+            updateControls();
+        }
+    };
 
     /**
      * onClick handler for "record" button.
      */
-    public void clickToggleRecording(@SuppressWarnings("unused") View unused) {
+    /*public void clickToggleRecording(@SuppressWarnings("unused") View unused) {
         mRecordingEnabled = !mRecordingEnabled;
         mGLView.queueEvent(new Runnable() {
             @Override
@@ -254,12 +276,11 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
             }
         });
         updateControls();
-    }
+    }*/
+
     private void updateControls() {
-        Button toggleRelease = (Button) v.findViewById(R.id.toggleRecording_button);
         int id = mRecordingEnabled ?
                 R.string.toggleRecordingOff : R.string.toggleRecordingOn;
-        toggleRelease.setText(id);
 
         //CheckBox cb = (CheckBox) findViewById(R.id.rebindHack_checkbox);
         //cb.setChecked(TextureRender.sWorkAroundContextProblem);

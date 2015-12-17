@@ -20,48 +20,6 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center" />
         </com.example.saturn.imagefilter.AspectFrameLayout>
-
-        <Button
-            android:id="@+id/toggleRecording_button"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/toggleRecordingOn"
-            android:onClick="clickToggleRecording" />
-
-        <Spinner
-            android:id="@+id/cameraFilter_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true" />
-
-        <!-- these overlap with the SurfaceView; by default, it's underneath the UI layer -->
-
-        <TextView
-            android:id="@+id/cameraParams_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/toggleRecording_button"
-            android:text="[?]"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/cameraOutputFileLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/cameraParams_text"
-            android:layout_below="@id/cameraParams_text"
-            android:text="@string/cameraOutputFileLabel_text" />
-
-        <TextView
-            android:id="@+id/cameraOutputFile_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/cameraOutputFileLabel"
-            android:layout_alignBottom="@id/cameraOutputFileLabel"
-            android:layout_toRightOf="@id/cameraOutputFileLabel"
-            android:paddingLeft="4dp"
-            android:text="@string/cameraOutputFile_text" />
     </RelativeLayout>
 
     <com.sileria.android.view.HorzListView
@@ -74,15 +32,6 @@
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp" />
 
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_menu_add" />
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_take"
         android:layout_width="wrap_content"
@@ -91,11 +40,4 @@
         android:layout_margin="@dimen/fab_margin"
         android:src="@android:drawable/ic_menu_crop" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|left"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_menu_save" />
 </FrameLayout>
