@@ -1,11 +1,14 @@
 package com.example.saturn.imagefilter;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -15,9 +18,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.sileria.android.view.HorzListView;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 
 public class ImageFragment extends Fragment {
@@ -94,8 +102,8 @@ public class ImageFragment extends Fragment {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             String str = txtUrl.getText().toString();
                             try {
-                                Toast.makeText(getActivity(),"Processing...", Toast.LENGTH_SHORT).show();
-                                Bitmap bmp = BitmapFactory.decodeByteArray(cur_img_data, 0, cur_img_data.length);
+                                Toast.makeText(getActivity(), "Processing...", Toast.LENGTH_SHORT).show();
+                                Bitmap bmp = viewRenderer.saveBitmap;
                                 String fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + str +".png";
                                 File f = new File(fileName);
                                 FileOutputStream fos = new FileOutputStream(f);

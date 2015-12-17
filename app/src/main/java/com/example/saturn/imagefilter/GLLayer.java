@@ -3,6 +3,7 @@ package com.example.saturn.imagefilter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -262,15 +263,30 @@ public class GLLayer implements GLSurfaceView.Renderer {
 		// Create a new perspective projection matrix. The height will stay the
 		// same
 		// while the width will vary as per aspect ratio.
-		final float ratio = (float) imageHeight/ imageWidth ;
+		final float ratio = (float)imageHeight/imageWidth;
 		final float left = -ratio;
 		final float right = ratio;
 		final float bottom = -1/ratio;
 		final float top = 1/ratio;
-		final float near = 1.0f;
-		final float far = 10.0f;
-		
-		Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
+		final float near = -1;
+		final float far = 10;
+
+		float imgAspectRatio = width / (float)height;
+		float viewAspectRatio = imageWidth / (float)imageHeight;
+		float relativeAspectRatio = viewAspectRatio / imgAspectRatio;
+		float x0, y0, x1, y1;
+		if (relativeAspectRatio > 1.0f) {
+			x0 = -1.0f / relativeAspectRatio;
+			y0 = -1.0f;
+			x1 = 1.0f / relativeAspectRatio;
+			y1 = 1.0f;
+		} else {
+			x0 = -1.0f;
+			y0 = -relativeAspectRatio;
+			x1 = 1.0f;
+			y1 = relativeAspectRatio;
+		}
+		Matrix.orthoM(mProjectionMatrix, 0, x0, x1, y0, y1, near, far);
 	}
 
 	@Override
@@ -334,6 +350,10 @@ public class GLLayer implements GLSurfaceView.Renderer {
 		Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, -3.2f);
 		Matrix.rotateM(mModelMatrix, 0, 0.0f, 1.0f, 1.0f, 0.0f);
 		drawCube();
+
+		/*if(isGetBitmap) {
+			saveBitmap = takeScreenshot(glUnused);
+		}*/
 	}
 
 	/**
@@ -384,4 +404,39 @@ public class GLLayer implements GLSurfaceView.Renderer {
 			mTextureDataHandle1 = TextureHelper.loadTextureBitmap(bmp);
 		}
 	}
+
+	public Bitmap takeScreenshot(GL10 mGL)
+	{
+		final int mWidth = imageWidth;
+		final int mHeight = imageHeight;
+		IntBuffer ib = IntBuffer.allocate(mWidth * mHeight);
+		IntBuffer ibt = IntBuffer.allocate(mWidth * mHeight);
+
+
+		mGL.glReadPixels(0, 0, mWidth, mHeight, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, ib);
+
+		// Convert upside down mirror-reversed image to right-side up normal
+		// image.
+		for (int i = 0; i < mHeight; i++) {
+			for (int j = 0; j < mWidth; j++) {
+				ibt.put((mHeight - i - 1) * mWidth + j, ib.get(i * mWidth + j));
+			}
+		}
+
+		Bitmap mBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+		mBitmap.copyPixelsFromBuffer(ibt);
+		return mBitmap;
+	}
+
+	/*public static Bitmap saveBitmap;
+
+	boolean isGetBitmap = false;
+	public void takeBitmap()
+	{
+		isGetBitmap = true;
+	}
+	public Bitmap getBitmap()
+	{
+		return saveBitmap;
+	}*/
 }
