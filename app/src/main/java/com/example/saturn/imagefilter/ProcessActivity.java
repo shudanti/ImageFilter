@@ -37,7 +37,7 @@ public class ProcessActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        VideoFragment fragment = new VideoFragment();
+        ImageFragment fragment = new ImageFragment();
 
         fragmentTransaction.replace(R.id.frame, fragment);
         fragmentTransaction.commit();

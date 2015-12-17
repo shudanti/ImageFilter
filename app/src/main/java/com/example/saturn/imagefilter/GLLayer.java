@@ -253,6 +253,7 @@ public class GLLayer implements GLSurfaceView.Renderer {
 			GLLayer.changeTexture(1, bitmap);
 		}
 	}
+
 	@Override
 	public void onSurfaceChanged(GL10 glUnused, int width, int height) {
 		// Set the OpenGL viewport to the same size as the surface.
@@ -261,11 +262,11 @@ public class GLLayer implements GLSurfaceView.Renderer {
 		// Create a new perspective projection matrix. The height will stay the
 		// same
 		// while the width will vary as per aspect ratio.
-		final float ratio = (float) width / height;
+		final float ratio = (float) imageHeight/ imageWidth ;
 		final float left = -ratio;
 		final float right = ratio;
-		final float bottom = -1.0f;
-		final float top = 1.0f;
+		final float bottom = -1/ratio;
+		final float top = 1/ratio;
 		final float near = 1.0f;
 		final float far = 10.0f;
 		
@@ -371,8 +372,12 @@ public class GLLayer implements GLSurfaceView.Renderer {
 		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
 	}
 
+	static int imageWidth = 400;
+	static int imageHeight = 250;
 	public static void changeTexture(int i, Bitmap bmp)
 	{
+		imageWidth = bmp.getWidth();
+		imageHeight = bmp.getHeight();
 		if(i == 0) {
 			mTextureDataHandle0 = TextureHelper.loadTextureBitmap(bmp);
 		} else if(i == 1) {
