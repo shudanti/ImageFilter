@@ -20,8 +20,8 @@ public class TextureHelper
 			final BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inScaled = false;	// No pre-scaling
 			// Read in the resource
-			final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
-						
+			final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId);
+
 			// Bind to the texture in OpenGL
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
 			
@@ -60,7 +60,9 @@ public class TextureHelper
 			// Set filtering
 			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
 			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-
+			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+			GLES20.glViewport(0,0,bitmap.getWidth(), bitmap.getHeight());
 			// Load the bitmap into the bound texture.
 			GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
 
