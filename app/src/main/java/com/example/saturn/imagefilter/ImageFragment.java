@@ -49,13 +49,14 @@ public class ImageFragment extends Fragment {
         LPreview.addView(mPreview);
         // listview Item la anh
         HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
-        int[] arrImg = { R.drawable.effect_black, R.drawable.effect_boost_1, R.drawable.effect_boost_2,
-                R.drawable.effect_boost_3, R.drawable.effect_brightness, R.drawable.effect_brightness,
+        int[] arrImg = { R.drawable.effect_black, R.drawable.effect1, R.drawable.effect2,
+                R.drawable.effect3, R.drawable.effect_brightness, R.drawable.effect_brightness,
                 R.drawable.effect_color_red,
                 R.drawable.effect_color_green,
                 R.drawable.effect_color_blue,
                 R.drawable.effect_color_depth_64,
                 R.drawable.effect_color_depth_32};
+
         ListFilterAdapter adapterImg = new ListFilterAdapter(
                 getActivity(), arrImg);
         listviewImg.setAdapter(adapterImg);
