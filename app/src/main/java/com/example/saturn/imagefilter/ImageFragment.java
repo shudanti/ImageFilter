@@ -29,7 +29,7 @@ import java.io.FileOutputStream;
 
 
 public class ImageFragment extends Fragment {
-    GLSurfaceView mPreview;
+    GLLayer mPreview;
     GLLayer viewRenderer;
     private static final int SELECT_PHOTO = 101;
     private static final int REQUEST_IMAGE_CAPTURE = 102;
@@ -47,7 +47,6 @@ public class ImageFragment extends Fragment {
         viewRenderer = new GLLayer(getActivity(), null, null);
         mPreview.setRenderer(viewRenderer);
         LPreview.addView(mPreview);
-
         // listview Item la anh
         HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
         int[] arrImg = { R.drawable.effect_black, R.drawable.effect_boost_1, R.drawable.effect_boost_2,
@@ -66,7 +65,7 @@ public class ImageFragment extends Fragment {
         btTake.setOnClickListener(onTakeClick);
 
         FloatingActionButton btSave = (FloatingActionButton)v.findViewById(R.id.fab_save);
-        //btSave.setOnClickListener(onSaveClick);
+        btSave.setOnClickListener(onSaveClick);
 
         FloatingActionButton btAdd = (FloatingActionButton)v.findViewById(R.id.fab_add);
         btAdd.setOnClickListener(onAddClick);
@@ -90,10 +89,11 @@ public class ImageFragment extends Fragment {
         super.onDestroy();
     }
 
-    /*View.OnClickListener onSaveClick = new View.OnClickListener() {
+    View.OnClickListener onSaveClick = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             final EditText txtUrl = new EditText(getActivity());
+            final Bitmap bmp = mPreview.getBitmap();
             new AlertDialog.Builder(getActivity())
                     .setTitle("Message")
                     .setMessage("Input file name!")
@@ -103,7 +103,7 @@ public class ImageFragment extends Fragment {
                             String str = txtUrl.getText().toString();
                             try {
                                 Toast.makeText(getActivity(), "Processing...", Toast.LENGTH_SHORT).show();
-                                Bitmap bmp = viewRenderer.saveBitmap;
+
                                 String fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + str +".png";
                                 File f = new File(fileName);
                                 FileOutputStream fos = new FileOutputStream(f);
@@ -122,7 +122,7 @@ public class ImageFragment extends Fragment {
                     })
                     .show();
         }
-    };*/
+    };
     boolean isFilterChange = false;
     int filterIndex = 0;
 

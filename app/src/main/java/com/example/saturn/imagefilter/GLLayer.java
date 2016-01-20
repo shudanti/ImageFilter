@@ -102,6 +102,7 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 	 * Shader Titles
 	 */
 	static public int shader_selection = 0;
+	static public int old_shader_selection = -1;
 	static public final int BLUR = 1;
 	static public final int EDGE = 2;
 	static public final int EMBOSS = 3;
@@ -134,12 +135,14 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 	static private float oldY;
 	private final float TOUCH_SCALE = 0.8f;     //Proved to be good for normal rotation ( NEW )
 	private ScaleGestureDetector mScaleDetector;
-
+	static private int vWidth;
+	static private int vHeight;
 	/**
 	 * Initialize the model data.
 	 */
 	public GLLayer(final Context activityContext, Bitmap bmp, Uri uriImage) {
 		super(activityContext);
+
 		mActivityContext = activityContext;
 		bitmap = bmp;
 		bitmapPath = getRealPathFromURI(uriImage);
@@ -148,6 +151,7 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 		oldX = 0;
 		oldY = 0;
 		sizeCoef = 1;
+		old_shader_selection = -1;
 		mScaleDetector = new ScaleGestureDetector(activityContext, new ScaleDetectorListener());
 		// Define points for a cube.
 
@@ -214,6 +218,7 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 				R.raw._vertex_shader);
 	}
 
+
 	protected String getFragmentShader() {
 		int id;
 		switch (shader_selection){
@@ -230,7 +235,9 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 			case WARP: id = R.raw.warp_fragment_shader;break;
 			default: id = R.raw._fragment_shader;break;
 		}
-		
+
+
+
 		return RawResourceReader.readTextFileFromRawResource(mActivityContext, id);
 	}
 
@@ -288,13 +295,15 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 			GLLayer.changeTexture(0, bitmap);
 			GLLayer.changeTexture(1, bitmap);
 		}
+
 	}
 
 	@Override
 	public void onSurfaceChanged(GL10 glUnused, int width, int height) {
 		// Set the OpenGL viewport to the same size as the surface.
 		GLES20.glViewport(0, 0, width, height);
-
+		vWidth = width;
+		vHeight = height;
 		// Create a new perspective projection matrix. The height will stay the
 		// same
 		// while the width will vary as per aspect ratio.
@@ -350,8 +359,11 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 
 	}
 
+	private static GL10 _glUnused;
+
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
+		_glUnused = glUnused;
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 		final String vertexShader = getVertexShader();
 		final String fragmentShader = getFragmentShader();
@@ -419,13 +431,25 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 		Matrix.scaleM(mModelMatrix, 0, sizeCoef, sizeCoef, 0);
 		drawCube();
 
-		/*if(isGetBitmap) {
-			saveBitmap = takeScreenshot(glUnused);
-		}*/
+		if(old_shader_selection != shader_selection)
+		{
+			count = 0;
+			old_shader_selection = shader_selection;
+			xrot = 0;
+			yrot = 0;
+			oldX = 0;
+			oldY = 0;
+			sizeCoef = 1;
+		}
+		if(count == 2)
+		{
+			saveBitmap = takeScreenshot();
+		}
 		xrot += xspeed;
 		yrot += yspeed;
+		count++;
 	}
-
+	int count = 0;
 	/**
 	 * Draws a cube.
 	 */
@@ -512,15 +536,14 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 		}
 		return orientation;
 	}
-	public Bitmap takeScreenshot(GL10 mGL)
+	public Bitmap takeScreenshot()
 	{
-		final int mWidth = imageWidth;
-		final int mHeight = imageHeight;
+		final int mWidth = vWidth;
+		final int mHeight = vHeight;
 		IntBuffer ib = IntBuffer.allocate(mWidth * mHeight);
 		IntBuffer ibt = IntBuffer.allocate(mWidth * mHeight);
 
-
-		mGL.glReadPixels(0, 0, mWidth, mHeight, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, ib);
+		_glUnused.glReadPixels(0, 0, mWidth, mHeight, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, ib);
 
 		// Convert upside down mirror-reversed image to right-side up normal
 		// image.
@@ -529,23 +552,22 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 				ibt.put((mHeight - i - 1) * mWidth + j, ib.get(i * mWidth + j));
 			}
 		}
-
 		Bitmap mBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+
 		mBitmap.copyPixelsFromBuffer(ibt);
 		return mBitmap;
 	}
 
-	/*public static Bitmap saveBitmap;
-
-	boolean isGetBitmap = false;
-	public void takeBitmap()
-	{
-		isGetBitmap = true;
-	}
+	public static Bitmap saveBitmap;
 	public Bitmap getBitmap()
 	{
 		return saveBitmap;
-	}*/
+	}
+	public void setScreen(int w, int h)
+	{
+		vWidth = w;
+		vHeight = h;
+	}
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		mScaleDetector.onTouchEvent(event);
