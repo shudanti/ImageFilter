@@ -298,6 +298,8 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 
 	}
 
+	static private int realWidth;
+	static private int realHeight;
 	@Override
 	public void onSurfaceChanged(GL10 glUnused, int width, int height) {
 		// Set the OpenGL viewport to the same size as the surface.
@@ -324,8 +326,6 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 		}
 		float relativeAspectRatio = viewAspectRatio / imgAspectRatio;
 
-
-
 		float x0, y0, x1, y1;
 		if(orientation == ExifInterface.ORIENTATION_ROTATE_90) {
 			if (relativeAspectRatio > 1.0f) {
@@ -333,11 +333,15 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 				x0 = -relativeAspectRatio;
 				y1 = 1.0f;
 				x1 = relativeAspectRatio;
+				realHeight =  height;
+				realWidth = imageWidth*realHeight/imageHeight;
 			} else {
 				y0 = -1.0f / relativeAspectRatio;
 				x0 = -1.0f;
 				y1 = 1.0f / relativeAspectRatio;
 				x1 = 1.0f;
+				realWidth = width;
+				realHeight =  imageHeight*realWidth/imageWidth;
 			}
 
 			Matrix.orthoM(mProjectionMatrix, 0, x0, x1, y0, y1, near, far);
@@ -348,11 +352,16 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 				y0 = -relativeAspectRatio;
 				x1 = 1.0f;
 				y1 = relativeAspectRatio;
+				realWidth = width;
+				realHeight =  imageHeight*realWidth/imageWidth;
+
 			} else {
 				x0 = -1.0f / relativeAspectRatio;
 				y0 = -1.0f;
 				x1 = 1.0f / relativeAspectRatio;
 				y1 = 1.0f;
+				realHeight =  height;
+				realWidth = imageWidth*realHeight/imageHeight;
 			}
 			Matrix.orthoM(mProjectionMatrix, 0, x0, x1, y0, y1, near, far);
 		}
@@ -538,12 +547,12 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 	}
 	public Bitmap takeScreenshot()
 	{
-		final int mWidth = vWidth;
-		final int mHeight = vHeight;
+		final int mWidth = realWidth;
+		final int mHeight = realHeight;
 		IntBuffer ib = IntBuffer.allocate(mWidth * mHeight);
 		IntBuffer ibt = IntBuffer.allocate(mWidth * mHeight);
 
-		_glUnused.glReadPixels(0, 0, mWidth, mHeight, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, ib);
+		_glUnused.glReadPixels(vWidth/2 - realWidth/2, vHeight/2 - realHeight/2, mWidth, mHeight, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, ib);
 
 		// Convert upside down mirror-reversed image to right-side up normal
 		// image.
@@ -562,11 +571,6 @@ public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 	public Bitmap getBitmap()
 	{
 		return saveBitmap;
-	}
-	public void setScreen(int w, int h)
-	{
-		vWidth = w;
-		vHeight = h;
 	}
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {

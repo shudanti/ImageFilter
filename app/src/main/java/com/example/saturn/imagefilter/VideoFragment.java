@@ -88,8 +88,8 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
 
         // listview Item la anh
         HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
-        int[] arrImg = { R.drawable.effect_black, R.drawable.effect_boost_1, R.drawable.effect_boost_2,
-                R.drawable.effect_boost_3, R.drawable.effect_brightness, R.drawable.effect_brightness};
+        int[] arrImg = { R.drawable.effect_0, R.drawable.effect_7, R.drawable.effect_1,
+                R.drawable.effect_mean_remove, R.drawable.effect_2, R.drawable.effect_3};
         ListFilterAdapter adapterImg = new ListFilterAdapter(
                 getActivity(), arrImg);
 

@@ -49,13 +49,13 @@ public class ImageFragment extends Fragment {
         LPreview.addView(mPreview);
         // listview Item la anh
         HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
-        int[] arrImg = { R.drawable.effect_black, R.drawable.effect1, R.drawable.effect2,
-                R.drawable.effect3, R.drawable.effect_brightness, R.drawable.effect_brightness,
-                R.drawable.effect_color_red,
-                R.drawable.effect_color_green,
-                R.drawable.effect_color_blue,
-                R.drawable.effect_color_depth_64,
-                R.drawable.effect_color_depth_32};
+        int[] arrImg = { R.drawable.effect_0 , R.drawable.effect_1, R.drawable.effect_2,
+                R.drawable.effect_3, R.drawable.effect_4, R.drawable.effect_5,
+                R.drawable.effect_6,
+                R.drawable.effect_7,
+                R.drawable.effect_8,
+                R.drawable.effect_9,
+                R.drawable.effect_10};
 
         ListFilterAdapter adapterImg = new ListFilterAdapter(
                 getActivity(), arrImg);
@@ -131,17 +131,19 @@ public class ImageFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             filterIndex = i;
-            if (filterIndex == 0){
-                GLLayer.shader_selection = 0;
-            }
-            if (filterIndex == 1){
-                GLLayer.shader_selection = GLLayer.BLUR;
-            }
-            if	(filterIndex == 2){
-                GLLayer.shader_selection = GLLayer.EDGE;
-            }
-            if	(filterIndex == 3){
-                GLLayer.shader_selection = GLLayer.EMBOSS;
+            switch (filterIndex){
+                case 0: GLLayer.shader_selection = 0; break;
+                case 1: GLLayer.shader_selection = GLLayer.BLUR; break;
+                case 2: GLLayer.shader_selection = GLLayer.EDGE; break;
+                case 3: GLLayer.shader_selection = GLLayer.EMBOSS; break;
+                case 4: GLLayer.shader_selection = GLLayer.FILTER; break;
+                case 5: GLLayer.shader_selection = GLLayer.FLIP; break;
+                case 6: GLLayer.shader_selection = GLLayer.HUE; break;
+                case 7: GLLayer.shader_selection = GLLayer.LUM; break;
+                case 8: GLLayer.shader_selection = GLLayer.NEG; break;
+                case 9: GLLayer.shader_selection = GLLayer.TOON; break;
+                case 10:GLLayer.shader_selection = GLLayer.TWIRL; break;
+                case 11: GLLayer.shader_selection = GLLayer.WARP; break;
             }
         }
     };
