@@ -42,9 +42,9 @@ public class ImageFragment extends Fragment {
 
 
         LPreview = (LinearLayout)v.findViewById(R.id.preview);
-        mPreview = new GLSurfaceView(getActivity());
+        mPreview = new GLLayer(getActivity(), null, null);
         mPreview.setEGLContextClientVersion(2);
-        viewRenderer = new GLLayer(getActivity(), null);
+        viewRenderer = new GLLayer(getActivity(), null, null);
         mPreview.setRenderer(viewRenderer);
         LPreview.addView(mPreview);
 
@@ -170,9 +170,9 @@ public class ImageFragment extends Fragment {
                     Bitmap bmp = decodeUri(selectedImage);
                     if(bmp !=null){
                         LPreview.removeAllViews();
-                        mPreview = new GLSurfaceView(getActivity());
+                        mPreview = new GLLayer(getActivity(), bmp, selectedImage);
                         mPreview.setEGLContextClientVersion(2);
-                        viewRenderer = new GLLayer(getActivity(), bmp);
+                        viewRenderer = new GLLayer(getActivity(), bmp, selectedImage);
                         mPreview.setRenderer(viewRenderer);
                         LPreview.addView(mPreview);
                     }
@@ -183,9 +183,9 @@ public class ImageFragment extends Fragment {
                     Bitmap bmp = decodeUri(selectedImage);
                     if(bmp !=null){
                         LPreview.removeAllViews();
-                        mPreview = new GLSurfaceView(getActivity());
+                        mPreview = new GLLayer(getActivity(), bmp, selectedImage);
                         mPreview.setEGLContextClientVersion(2);
-                        viewRenderer = new GLLayer(getActivity(), bmp);
+                        viewRenderer = new GLLayer(getActivity(), bmp, selectedImage);
                         mPreview.setRenderer(viewRenderer);
                         LPreview.addView(mPreview);
                     }

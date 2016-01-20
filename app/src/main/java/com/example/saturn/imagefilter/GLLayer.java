@@ -1,5 +1,6 @@
 package com.example.saturn.imagefilter;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -9,14 +10,21 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
+import android.content.CursorLoader;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.provider.MediaStore;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 
-public class GLLayer implements GLSurfaceView.Renderer {
+public class GLLayer extends GLSurfaceView implements GLSurfaceView.Renderer {
 	/**
 	 * This class implements our custom renderer. Note that the GL10 parameter
 	 * passed in is unused for OpenGL ES 2.0 renderers -- the static class
@@ -108,12 +116,39 @@ public class GLLayer implements GLSurfaceView.Renderer {
 	//and more ...
 
 	private Bitmap bitmap;
+	static private int orientation;
+	static private String bitmapPath;
+
+	/* Rotation values */
+	static private float xrot;                 //X Rotation
+	static private float yrot;                 //Y Rotation
+
+	/* Rotation speed values */
+
+	static private float xspeed;               //X Rotation Speed ( NEW )
+	static private float yspeed;               //Y Rotation Speed ( NEW )
+
+	static private float z = 320.0f;
+
+	static private float oldX;
+	static private float oldY;
+	private final float TOUCH_SCALE = 0.8f;     //Proved to be good for normal rotation ( NEW )
+	private ScaleGestureDetector mScaleDetector;
+
 	/**
 	 * Initialize the model data.
 	 */
-	public GLLayer(final Context activityContext, Bitmap bmp) {
+	public GLLayer(final Context activityContext, Bitmap bmp, Uri uriImage) {
+		super(activityContext);
 		mActivityContext = activityContext;
 		bitmap = bmp;
+		bitmapPath = getRealPathFromURI(uriImage);
+		xrot = 0;
+		yrot = 0;
+		oldX = 0;
+		oldY = 0;
+		sizeCoef = 1;
+		mScaleDetector = new ScaleGestureDetector(activityContext, new ScaleDetectorListener());
 		// Define points for a cube.
 
 		// X, Y, Z
@@ -272,21 +307,47 @@ public class GLLayer implements GLSurfaceView.Renderer {
 		final float far = 10;
 
 		float imgAspectRatio = width / (float)height;
-		float viewAspectRatio = imageWidth / (float)imageHeight;
-		float relativeAspectRatio = viewAspectRatio / imgAspectRatio;
-		float x0, y0, x1, y1;
-		if (relativeAspectRatio > 1.0f) {
-			x0 = -1.0f / relativeAspectRatio;
-			y0 = -1.0f;
-			x1 = 1.0f / relativeAspectRatio;
-			y1 = 1.0f;
-		} else {
-			x0 = -1.0f;
-			y0 = -relativeAspectRatio;
-			x1 = 1.0f;
-			y1 = relativeAspectRatio;
+		float viewAspectRatio =  (float)imageWidth/imageHeight;
+		if(orientation == ExifInterface.ORIENTATION_ROTATE_90)
+		{
+			imgAspectRatio = 1/imgAspectRatio;
+			viewAspectRatio = 1/viewAspectRatio;
 		}
-		Matrix.orthoM(mProjectionMatrix, 0, x0, x1, y0, y1, near, far);
+		float relativeAspectRatio = viewAspectRatio / imgAspectRatio;
+
+
+
+		float x0, y0, x1, y1;
+		if(orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+			if (relativeAspectRatio > 1.0f) {
+				y0 = -1.0f;
+				x0 = -relativeAspectRatio;
+				y1 = 1.0f;
+				x1 = relativeAspectRatio;
+			} else {
+				y0 = -1.0f / relativeAspectRatio;
+				x0 = -1.0f;
+				y1 = 1.0f / relativeAspectRatio;
+				x1 = 1.0f;
+			}
+
+			Matrix.orthoM(mProjectionMatrix, 0, x0, x1, y0, y1, near, far);
+			Matrix.rotateM(mProjectionMatrix, 0, -90, 0, 0, 1.0f);
+		} else {
+			if (relativeAspectRatio > 1.0f) {
+				x0 = -1.0f;
+				y0 = -relativeAspectRatio;
+				x1 = 1.0f;
+				y1 = relativeAspectRatio;
+			} else {
+				x0 = -1.0f / relativeAspectRatio;
+				y0 = -1.0f;
+				x1 = 1.0f / relativeAspectRatio;
+				y1 = 1.0f;
+			}
+			Matrix.orthoM(mProjectionMatrix, 0, x0, x1, y0, y1, near, far);
+		}
+
 	}
 
 	@Override
@@ -349,11 +410,20 @@ public class GLLayer implements GLSurfaceView.Renderer {
 		Matrix.setIdentityM(mModelMatrix, 0);
 		Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, -3.2f);
 		Matrix.rotateM(mModelMatrix, 0, 0.0f, 1.0f, 1.0f, 0.0f);
+		//Matrix.rotateM(mModelMatrix, 0, xrot, 1.0f, 0f, 1.0f);
+		//Matrix.rotateM(mModelMatrix, 0, yrot, 0f, 1.0f, 1.0f);
+		if(sizeCoef >1)
+		{
+			Matrix.translateM(mModelMatrix, 0, yrot/200, -xrot/200, -3.2f);
+		}
+		Matrix.scaleM(mModelMatrix, 0, sizeCoef, sizeCoef, 0);
 		drawCube();
 
 		/*if(isGetBitmap) {
 			saveBitmap = takeScreenshot(glUnused);
 		}*/
+		xrot += xspeed;
+		yrot += yspeed;
 	}
 
 	/**
@@ -396,15 +466,52 @@ public class GLLayer implements GLSurfaceView.Renderer {
 	static int imageHeight = 250;
 	public static void changeTexture(int i, Bitmap bmp)
 	{
-		imageWidth = bmp.getWidth();
-		imageHeight = bmp.getHeight();
+		if(bitmapPath == null)
+		{
+			orientation = ExifInterface.ORIENTATION_NORMAL;
+		}
+		else {
+			orientation = getExifOrientation();
+		}
+		if(orientation == ExifInterface.ORIENTATION_ROTATE_90)
+		{
+			imageHeight = bmp.getWidth();
+			imageWidth= bmp.getHeight();
+		}
+		else {
+			imageWidth = bmp.getWidth();
+			imageHeight = bmp.getHeight();
+		}
 		if(i == 0) {
 			mTextureDataHandle0 = TextureHelper.loadTextureBitmap(bmp);
 		} else if(i == 1) {
 			mTextureDataHandle1 = TextureHelper.loadTextureBitmap(bmp);
 		}
 	}
+	private  String getRealPathFromURI(Uri contentUri) {
+		if(contentUri == null)
+		{
+			return null;
+		}
+		String[] proj = { MediaStore.Images.Media.DATA };
+		CursorLoader loader = new CursorLoader(mActivityContext, contentUri, proj, null, null, null);
+		Cursor cursor = loader.loadInBackground();
+		int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+		cursor.moveToFirst();
+		return cursor.getString(column_index);
+	}
 
+	private static int getExifOrientation() {
+		ExifInterface exif;
+		orientation = 0;
+		try {
+			exif = new ExifInterface(bitmapPath);
+			orientation = exif.getAttributeInt( ExifInterface.TAG_ORIENTATION, 1 );
+		} catch ( IOException e ) {
+			e.printStackTrace();
+		}
+		return orientation;
+	}
 	public Bitmap takeScreenshot(GL10 mGL)
 	{
 		final int mWidth = imageWidth;
@@ -439,4 +546,102 @@ public class GLLayer implements GLSurfaceView.Renderer {
 	{
 		return saveBitmap;
 	}*/
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		mScaleDetector.onTouchEvent(event);
+		//
+		float x = event.getX();
+		float y = event.getY();
+
+		//If a touch is moved on the screen
+		if(event.getAction() == MotionEvent.ACTION_MOVE && !isScale) {
+			//Calculate the change
+			float dx = x - oldX;
+			float dy = y - oldY;
+
+			if(Math.abs(dx)  > 100 || Math.abs(dy) > 100)
+			{
+				return false;
+			}
+			//Define an upper area of 10% on the screen
+			int upperArea = imageHeight / 10;
+
+			//Zoom in/out if the touch move has been made in the upper
+			if(y < upperArea) {
+				z -= dx * TOUCH_SCALE / 2;
+
+				//Rotate around the axis otherwise
+			} else {
+				xrot += dy * TOUCH_SCALE;
+				yrot += dx * TOUCH_SCALE;
+			}
+
+			//A press on the screen
+		} else if(event.getAction() == MotionEvent.ACTION_UP) {
+
+
+		}
+
+		//Remember the values
+		oldX = x;
+		oldY = y;
+
+		//We handled the event
+		return true;
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		//
+		if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+
+		} else if(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+
+		} else if(keyCode == KeyEvent.KEYCODE_DPAD_UP) {
+			z -= 3;
+
+		} else if(keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+			z += 3;
+
+		} else if(keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+
+		}
+
+		//We handled the event
+		return true;
+	}
+	static private float sizeCoef = 1;
+	static private boolean isScale = false;
+
+	private class ScaleDetectorListener implements ScaleGestureDetector.OnScaleGestureListener{
+
+		float scaleFocusX = 0;
+		float scaleFocusY = 0;
+
+		public boolean onScale(ScaleGestureDetector arg0) {
+			float scale = arg0.getScaleFactor() * sizeCoef;
+
+			sizeCoef = scale;
+
+			requestRender();
+
+			return true;
+		}
+
+		public boolean onScaleBegin(ScaleGestureDetector arg0) {
+			invalidate();
+			isScale = true;
+			scaleFocusX = arg0.getFocusX();
+			scaleFocusY = arg0.getFocusY();
+
+			return true;
+		}
+
+		public void onScaleEnd(ScaleGestureDetector arg0) {
+			scaleFocusX = 0;
+			scaleFocusY = 0;
+			isScale = false;
+		}
+	}
+
 }
