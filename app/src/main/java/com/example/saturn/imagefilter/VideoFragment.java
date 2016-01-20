@@ -87,7 +87,7 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
         v = inflater.inflate(R.layout.fragment_video,container,false);
 
         // listview Item la anh
-        /*HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
+        HorzListView listviewImg = (HorzListView) v.findViewById(R.id.horizontal_lv);
         int[] arrImg = { R.drawable.effect_black, R.drawable.effect_boost_1, R.drawable.effect_boost_2,
                 R.drawable.effect_boost_3, R.drawable.effect_brightness, R.drawable.effect_brightness};
         ListFilterAdapter adapterImg = new ListFilterAdapter(
@@ -104,16 +104,16 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
 
         //FloatingActionButton btAdd = (FloatingActionButton)v.findViewById(R.id.fab_add);
         //btAdd.setOnClickListener(onAddClick);
-*/
-        File outputFile = new File(Environment.getExternalStorageDirectory(), "camera-test.mp4");
 
+        File outputFile = new File(Environment.getExternalStorageDirectory(), System.currentTimeMillis()/1000 + "camera-test.mp4");
+/*
         Spinner spinner = (Spinner) v.findViewById(R.id.cameraFilter_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.cameraFilterNames, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner.
         spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
+        spinner.setOnItemSelectedListener(this);*/
 
         // Define a handler that receives camera-control messages from other threads.  All calls
         // to Camera must be made on the same thread.  Note we create this before the renderer
@@ -140,7 +140,7 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
 
         // Set the preview aspect ratio.
         AspectFrameLayout layout = (AspectFrameLayout) v.findViewById(R.id.cameraPreview_afl);
-        layout.setAspectRatio((double)mCameraPreviewHeight / mCameraPreviewWidth);
+        layout.setAspectRatio((double) mCameraPreviewHeight / mCameraPreviewWidth);
 
         mGLView.onResume();
         mGLView.queueEvent(new Runnable() {
@@ -198,7 +198,7 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
             Camera.getCameraInfo(i, info);
             if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
                 mCamera = Camera.open(i);
-                //mCamera.setDisplayOrientation((info.orientation ) % 360);
+                mCamera.setDisplayOrientation((info.orientation ) % 360);
 
                 break;
             }
