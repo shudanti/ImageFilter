@@ -140,7 +140,7 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
 
         // Set the preview aspect ratio.
         AspectFrameLayout layout = (AspectFrameLayout) v.findViewById(R.id.cameraPreview_afl);
-        layout.setAspectRatio((double) mCameraPreviewHeight / mCameraPreviewWidth);
+        layout.setAspectRatio((double) mCameraPreviewWidth / mCameraPreviewHeight);
 
         mGLView.onResume();
         mGLView.queueEvent(new Runnable() {
@@ -198,7 +198,7 @@ public class VideoFragment extends Fragment implements SurfaceTexture.OnFrameAva
             Camera.getCameraInfo(i, info);
             if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
                 mCamera = Camera.open(i);
-                mCamera.setDisplayOrientation((info.orientation ) % 360);
+                //mCamera.setDisplayOrientation((info.orientation ) % 360);
 
                 break;
             }
