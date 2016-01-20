@@ -3,6 +3,7 @@ package com.example.saturn.imagefilter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
@@ -18,7 +19,6 @@ public class TextureHelper
 		{
 			final BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inScaled = false;	// No pre-scaling
-
 			// Read in the resource
 			final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
 						
@@ -53,7 +53,6 @@ public class TextureHelper
 		{
 			//final BitmapFactory.Options options = new BitmapFactory.Options();
 			//options.inScaled = false;	// No pre-scaling
-
 
 			// Bind to the texture in OpenGL
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
